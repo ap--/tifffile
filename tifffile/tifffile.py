@@ -10254,6 +10254,7 @@ class ZarrTiffStore(ZarrStore):
         _index: str | None = None,
         _close: bool = True,
         _append: bool = False,
+        _template_key: str = "u",
     ) -> None:
         """Write fsspec ReferenceFileSystem as JSON to file.
 
@@ -10396,13 +10397,13 @@ class ZarrTiffStore(ZarrStore):
                     fname = page.keyframe.parent.filehandle.name
                     if fname in templates:
                         continue
-                    key = f'u{i}'
+                    key = f'{_template_key}{i}'
                     templates[fname] = '{{%s}}' % key
                     refs['templates'][key] = url + fname
                     i += 1
             else:
                 fname = self._data[0].keyframe.parent.filehandle.name
-                key = 'u'
+                key = f'{_template_key}'
                 templates[fname] = '{{%s}}' % key
                 refs['templates'][key] = url + fname
 
@@ -10875,6 +10876,7 @@ class ZarrFileSequenceStore(ZarrStore):
         version: int | None = None,
         _append: bool = False,
         _close: bool = True,
+        _template_key: str = "u",
     ) -> None:
         """Write fsspec ReferenceFileSystem as JSON to file.
 
@@ -10951,10 +10953,10 @@ class ZarrFileSequenceStore(ZarrStore):
             if _append:
                 raise ValueError('cannot append when using version 1')
             refs['version'] = 1
-            refs['templates'] = {'u': url}
+            refs['templates'] = {_template_key: url}
             refs['gen'] = []
             refs['refs'] = refzarr = dict()
-            url = '{{u}}'
+            url = '{{%s}}' % _template_key
         else:
             refzarr = refs
 
